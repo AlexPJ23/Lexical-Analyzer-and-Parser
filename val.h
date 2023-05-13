@@ -90,6 +90,11 @@ public:
 	Value operator||(const Value& op) const;
 	
 	Value operator!() const;//NOT Unary operator
+
+    // Value operator+=(const Value& op) const;
+    // Value operator-=(const Value& op) const;
+
+    
 	
 	    
     friend ostream& operator<<(ostream& out, const Value& op) {
