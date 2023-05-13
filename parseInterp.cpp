@@ -95,19 +95,19 @@ bool StmtList(istream& in, int& line){
     bool f1 = Stmt(in, line);
     while(f1){
         tok = Parser::GetNextToken(in,line);
-        if(tok!=SEMICOL){
+        if(tok.GetToken() !=SEMICOL){
             ParseError(line,"Missing SemiColon!");
             return false;
         }
         f1 = Stmt(in,line);
     }
     tok = Parser::GetNextToken(in,line);
-    if(tok == END)
+    if(tok.GetToken() == END)
     {
         Parser::PushBackToken(tok);
         return true;
     }
-    else if(tok == ELSE)
+    else if(tok.GetToken() == ELSE)
     {
         Parser::PushBackToken(tok);
         return true;
@@ -120,15 +120,81 @@ bool StmtList(istream& in, int& line){
 }
 //DeclStmt ::= ( INT | FLOAT | BOOL ) VarList 
 bool DeclStmt(istream& in, int& line){
+    LexItem tok = Parser::GetNextToken(in,line);
+    if (tok.GetToken() == INT || tok.GetToken() == FLOAT || tok.GetToken() == BOOL){
+        if(!VarList(in,line,tok))
+        {
+            ParseError(line, "Incorrect Var!");
+            return false;
+        }
+
+    }else
+    {
+        ParseError(line,"Not a type!");
+        return false;
+    }
+    return true;
 
 }
 //ControlStmt ::= AssigStmt | IfStmt | PrintStmt
-bool ControlStmt(istream& in, int& line){
+bool ControlStmt(istream& in, int& line)
+{
+	bool status;
+	
+	LexItem t = Parser::GetNextToken(in, line);
+	
+	switch( t.GetToken() ) {
 
+	case PRINT:
+		status = PrintStmt(in, line);
+		break;
+
+	case IF:
+		status = IfStmt(in, line);
+		break;
+
+	case IDENT:
+		Parser::PushBackToken(t);
+        status = AssignStmt(in, line);
+		break;
+		
+	default:
+		Parser::PushBackToken(t);
+		return false;
+	}
+
+	return status;
 }
 //Stmt ::= DeclStmt | ControlStmt 
 bool Stmt(istream& in, int& line){
-
+	bool status=false;
+	
+	LexItem t = Parser::GetNextToken(in, line);
+	
+	switch( t.GetToken() ) {
+	case INT: case FLOAT: case BOOL:
+		Parser::PushBackToken(t);
+		status = DeclStmt(in, line);
+		if(!status)
+		{
+			ParseError(line, "Incorrect Declaration Statement.");
+			return status;
+		}
+		break;
+	case IF: case PRINT: case IDENT: 
+		Parser::PushBackToken(t);
+		status = ControlStmt(in, line);
+		
+		if(!status)
+		{
+			ParseError(line, "Incorrect control Statement.");
+			return status;
+		}
+		break;
+	default:
+		Parser::PushBackToken(t);
+	}
+	return status;
 }
 // IfStmt ::= IF (Expr) THEN StmtList [ ELSE StmtList ] END IF
 bool IfStmt(istream& in, int& line){
