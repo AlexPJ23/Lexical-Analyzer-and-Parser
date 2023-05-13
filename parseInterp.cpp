@@ -39,63 +39,117 @@ void ParseError(int line, string msg)
 	++error_count;
 	cout << line << ": " << msg << endl;
 }
-
-bool Prog(istream& in, int& line){
-
+//PROGRAM IDENT StmtList END PROGRAM
+bool Prog(istream& in, int& line)
+{
+	bool f1;
+	LexItem tok = Parser::GetNextToken(in, line);	
+	if (tok.GetToken() == PROGRAM) {
+		tok = Parser::GetNextToken(in, line);
+		if (tok.GetToken() == IDENT) {
+			f1 = StmtList(in, line); 
+			if(f1) {
+				tok = Parser::GetNextToken(in, line);
+				if( tok == END){
+					tok = Parser::GetNextToken(in, line);
+					if(tok != PROGRAM){
+						ParseError(line, "Missing PROGRAM Keyword.");
+						return false;
+					}
+					return true;
+				}
+				else
+				{
+					ParseError(line, "Missing END of Program.");
+					return false;
+				}
+				
+			}
+			else
+			{
+				ParseError(line, "Incorrect Program Body.");
+				return false;
+			}
+		}
+		else
+		{
+			ParseError(line, "Missing Program Name.");
+			return false;
+		}
+	}
+	else if(tok.GetToken() == ERR){
+		ParseError(line, "Unrecognized Input Pattern");
+		cout << "(" << tok.GetLexeme() << ")" << endl;
+		return false;
+	}
+	else if(tok.GetToken() == DONE && tok.GetLinenum() <= 1){
+		ParseError(line, "Empty File");
+		return true;
+	}
+	ParseError(line, "Missing PROGRAM.");
+	return false;
 }
+//StmtList ::= Stmt; { Stmt; }
 bool StmtList(istream& in, int& line){
 
 }
+//DeclStmt ::= ( INT | FLOAT | BOOL ) VarList 
 bool DeclStmt(istream& in, int& line){
 
 }
-
+//ControlStmt ::= AssigStmt | IfStmt | PrintStmt
 bool ControlStmt(istream& in, int& line){
 
 }
-
+//Stmt ::= DeclStmt | ControlStmt 
 bool Stmt(istream& in, int& line){
 
 }
-
+// IfStmt ::= IF (Expr) THEN StmtList [ ELSE StmtList ] END IF
 bool IfStmt(istream& in, int& line){
 
 }
-
+//AssignStmt ::= Var = Expr
 bool AssignStmt(istream& in, int& line){
 
 }
-
+// VarList ::= Var { ,Var }
 bool VarList(istream& in, int& line, LexItem& type){
 
 }
-
+// Var ::= IDENT
 bool Var(istream& in, int& line, LexItem& type){
 
 }
-
+//ExprList ::= Expr { , Expr }
 bool ExprList(istream& in, int& line){
 
 }
-
+//Expr ::= LogORExpr ::= LogANDExpr { || LogANDRxpr }
 bool Expr(istream& in, int& line){
 
 }
+//EqualExpr ::= RelExpr [== RelExpr ] 
 bool EqualExpr(istream& in, int& line, Value & retVal){
 
 }
+//RelExpr ::= AddExpr [ ( < | > ) AddExpr ]
 bool RelExpr(istream& in, int& line, Value & retVal){
 
 }
+// AddExpr :: MultExpr { ( + | - ) MultExpr }
 bool AddExpr(istream& in, int& line, Value & retVal){
 
 }
+//MultExpr ::= UnaryExpr { ( * | / ) UnaryExpr }
 bool MultExpr(istream& in, int& line, Value & retVal){
 
 }
+//UnaryExpr ::= ( - | + | ! ) PrimaryExpr | PrimaryExpr
 bool UnaryExpr(istream& in, int& line, Value & retVal){
 
 }
+//PrimaryExpr ::= IDENT | ICONST | RCONST | SCONST | BCONST | ( Expr ))
 bool PrimaryExpr(istream& in, int& line,int sign, Value & retVal){
     
 }
