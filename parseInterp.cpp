@@ -91,7 +91,32 @@ bool Prog(istream& in, int& line)
 }
 //StmtList ::= Stmt; { Stmt; }
 bool StmtList(istream& in, int& line){
-
+    LexItem tok;
+    bool f1 = Stmt(in, line);
+    while(f1){
+        tok = Parser::GetNextToken(in,line);
+        if(tok!=SEMICOL){
+            ParseError(line,"Missing SemiColon!");
+            return false;
+        }
+        f1 = Stmt(in,line);
+    }
+    tok = Parser::GetNextToken(in,line);
+    if(tok == END)
+    {
+        Parser::PushBackToken(tok);
+        return true;
+    }
+    else if(tok == ELSE)
+    {
+        Parser::PushBackToken(tok);
+        return true;
+    }
+    else{
+        ParseError(line,"Sytactic error in Program!");
+        return false;
+    }
+    return false;
 }
 //DeclStmt ::= ( INT | FLOAT | BOOL ) VarList 
 bool DeclStmt(istream& in, int& line){
