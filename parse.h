@@ -1,7 +1,4 @@
 /* 
- * parseInt.h
- * Programming Assignment 3
- * Fall 2022
 */
 
 #ifndef PARSEINT_H_
