@@ -1,4 +1,4 @@
-l#ifndef VALUE_H
+#ifndef VALUE_H
 #define VALUE_H
 
 #include <iostream>
