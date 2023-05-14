@@ -1,3 +1,5 @@
 # Lexical Analyzer and Parser
 
-This poject is my own conception of a lexical analyzer and paser!
+This is a very basic rudementiary Interpreter wite a limited set of keywords and syntax grammer.
+
+# How to Use! (Coming Soon!)
