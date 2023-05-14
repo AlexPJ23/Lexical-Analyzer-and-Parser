@@ -248,14 +248,85 @@ bool IfStmt(istream& in, int& line){
 }
 //AssignStmt ::= Var = Expr
 bool AssignStmt(istream& in, int& line){
-
+    LexItem t;
+    bool status;
+    status = Var(in,line,(t=Parser::GetNextToken(in,line)));
+    if(!status){
+        ParseError(line,"Missing LHS Var");
+        return false;
+    }
+    t = Parser::GetNextToken(in,line);
+    if(t.GetToken() != ASSOP || t.GetToken() == ERR){
+        ParseError(line,"No Equal operator");
+        cout << "(" << t.GetLexeme() << ")" << endl;
+        return false;
+    }
+    
+    status = Expr(in,line);
+    if (!status){
+        ParseError(line,"Expression is invalid");
+        return false;
+    }
+    return true;
 }
 // VarList ::= Var { ,Var }
-bool VarList(istream& in, int& line, LexItem& type){
-
+bool VarList(istream& in, int& line, LexItem& type)
+{
+	bool status = false;
+	string identstr;
+	
+	LexItem tok = Parser::GetNextToken(in, line);
+	if(tok.GetToken() == IDENT)
+	{
+		identstr = tok.GetLexeme();
+		if (!(defVar.find(identstr)->second))
+		{
+			defVar[identstr] = true;
+		}	
+		else
+		{
+			ParseError(line, "Variable Redefinition");
+			return false;
+		}
+		
+	}
+	else
+	{
+		Parser::PushBackToken(tok);
+		return true;
+	}
+	
+	tok = Parser::GetNextToken(in, line);
+	
+	if (tok == COMMA) {
+		status = VarList(in, line, tok);
+	}
+	else {
+		Parser::PushBackToken(tok);
+		return true;
+	}
+	return status;	
 }
 // Var ::= IDENT
 bool Var(istream& in, int& line, LexItem& type){
+    string identstr;
+	
+	if (type.GetToken() == IDENT){
+		identstr = type.GetLexeme();
+		if (!(defVar.find(identstr)->second))
+		{
+			ParseError(line, "Undeclared Variable");
+			return false;
+		}	
+		return true;
+	}
+	else if(type.GetToken() == ERR){
+		ParseError(line, "Unrecognized Input Pattern");
+		cout << "(" << type.GetLexeme() << ")" << endl;
+		return false;
+	}
+	
+	return false;
 
 }
 //ExprList ::= Expr { , Expr }
