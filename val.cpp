@@ -67,30 +67,6 @@ Value Value::operator-(const Value& oper) const
     return Value();
 }
 
-Value Value::operator*(const Value& oper) const
-{
-    if (this->IsBool() || this->IsErr() || this->IsString() || oper.IsBool() || oper.IsErr() || oper.IsString()) {
-        return Value();
-    }
-
-    if (this->IsInt() && oper.IsInt()) {
-        return Value(this->GetInt() * oper.GetInt());
-    }
-
-    if (this->IsReal() && oper.IsReal()) {
-        return Value(this->GetReal() * oper.GetReal());
-    }
-
-    if (this->IsReal() && oper.IsInt()) {
-        return Value(this->GetReal() * oper.GetInt());
-    }
-
-    if (this->IsInt() && oper.IsReal()) {
-        return Value(this->GetInt() * oper.GetReal());
-    }
-
-    return Value();
-}
 
 Value Value::operator+(const Value& oper) const{
 	if(this->IsBool() || this->IsErr() || this->IsString()  || oper.IsBool() || oper.IsErr() || oper.IsString()){

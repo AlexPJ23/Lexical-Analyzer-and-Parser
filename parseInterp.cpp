@@ -245,7 +245,7 @@ bool IfStmt(istream& in, int& line){
             }
         }
     }
-
+    return true;
 }
 //AssignStmt ::= Var = Expr
 bool AssignStmt(istream& in, int& line){
@@ -352,8 +352,7 @@ bool ExprList(istream& in, int& line){
         Parser::PushBackToken(t);
         return true;
     }
-    
-
+    return true;
 }
 //Expr ::= LogORExpr ::= LogANDExpr { || LogANDRxpr }
 bool Expr(istream& in, int& line,Value& retVal){
