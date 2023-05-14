@@ -146,10 +146,12 @@ bool ControlStmt(istream& in, int& line)
 	switch( t.GetToken() ) {
 
 	case PRINT:
+        Parser::PushBackToken(t);
 		status = PrintStmt(in, line);
 		break;
 
 	case IF:
+        Parser::PushBackToken(t);
 		status = IfStmt(in, line);
 		break;
 
@@ -198,6 +200,50 @@ bool Stmt(istream& in, int& line){
 }
 // IfStmt ::= IF (Expr) THEN StmtList [ ELSE StmtList ] END IF
 bool IfStmt(istream& in, int& line){
+    LexItem tok;
+    bool status;
+    if ((tok=Parser::GetNextToken(in,line)).GetToken() == IF){
+        tok = Parser::GetNextToken(in,line);
+        if(tok.GetToken() == LPAREN){
+            status = Expr(in,line);
+            if(!status)
+            {
+                ParseError(line,"Invalid Expression!");
+                return false;
+            }
+            if((tok=Parser::GetNextToken(in,line)).GetToken() == RPAREN){
+                tok = Parser::GetNextToken(in,line);
+                if(tok.GetToken() != THEN){
+                    ParseError(line, "No Then KeyWord!");
+                    return false;
+                }
+                status = StmtList(in,line);
+                if(!status){
+                    ParseError(line,"Statement List is invalid!");
+                    return false;
+                }
+                if((tok=Parser::GetNextToken(in,line)).GetToken() == ELSE ){
+                    status = StmtList(in,line);
+                    if(!status)
+                    {
+                        ParseError(line,"Statment List is invalid in Else!");
+                        return false;
+                    }
+
+                }else if ((tok=Parser::GetNextToken(in,line)).GetToken() == END){
+                    if((tok=Parser::GetNextToken(in,line)).GetToken() == IF){
+                        return true;
+                    } else{
+                        ParseError(line,"No End-IF!");
+                        return false;
+                    }
+                }else{
+                    ParseError(line,"No END Statment!");
+                    return false;
+                }
+            }
+        }
+    }
 
 }
 //AssignStmt ::= Var = Expr
