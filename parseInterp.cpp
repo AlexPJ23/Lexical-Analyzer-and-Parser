@@ -201,11 +201,12 @@ bool Stmt(istream& in, int& line){
 // IfStmt ::= IF (Expr) THEN StmtList [ ELSE StmtList ] END IF
 bool IfStmt(istream& in, int& line){
     LexItem tok;
+    Value val1,val2;
     bool status;
     if ((tok=Parser::GetNextToken(in,line)).GetToken() == IF){
         tok = Parser::GetNextToken(in,line);
         if(tok.GetToken() == LPAREN){
-            status = Expr(in,line);
+            status = Expr(in,line,val1);
             if(!status)
             {
                 ParseError(line,"Invalid Expression!");
@@ -249,6 +250,7 @@ bool IfStmt(istream& in, int& line){
 //AssignStmt ::= Var = Expr
 bool AssignStmt(istream& in, int& line){
     LexItem t;
+    Value val1;
     bool status;
     status = Var(in,line,(t=Parser::GetNextToken(in,line)));
     if(!status){
@@ -262,7 +264,7 @@ bool AssignStmt(istream& in, int& line){
         return false;
     }
     
-    status = Expr(in,line);
+    status = Expr(in,line,val1);
     if (!status){
         ParseError(line,"Expression is invalid");
         return false;
@@ -332,8 +334,9 @@ bool Var(istream& in, int& line, LexItem& type){
 //ExprList ::= Expr { , Expr }
 bool ExprList(istream& in, int& line){
     bool status;
+    Value val1;
     LexItem t;
-    status = Expr(in,line);
+    status = Expr(in,line,val1);
     if(!status){
         ParseError(line,"Missing Expression");
         return false;
@@ -353,7 +356,7 @@ bool ExprList(istream& in, int& line){
 
 }
 //Expr ::= LogORExpr ::= LogANDExpr { || LogANDRxpr }
-bool Expr(istream& in, int& line){
+bool Expr(istream& in, int& line,Value& retVal){
     LexItem tok;
     Value val1,val2;
 	bool t1 = LogANDExpr(in, line, val1);
@@ -565,7 +568,7 @@ bool UnaryExpr(istream& in, int& line, Value & retVal){
 }
 //PrimaryExpr ::= IDENT | ICONST | RCONST | SCONST | BCONST | ( Expr ))
 bool PrimaryExpr(istream& in, int& line,int sign, Value & retVal){
-    	LexItem tok = Parser::GetNextToken(in, line);
+    LexItem tok = Parser::GetNextToken(in, line);
 	
 
 	if( tok == IDENT ) {
@@ -595,7 +598,7 @@ bool PrimaryExpr(istream& in, int& line,int sign, Value & retVal){
 		return true;
 	}
 	else if( tok == LPAREN ) {
-		bool ex = Expr(in, line);
+		bool ex = Expr(in, line,retVal);
 		if( !ex ) {
 			ParseError(line, "Missing expression after Left Parenthesis");
 			return false;
